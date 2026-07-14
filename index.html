@@ -193,10 +193,10 @@
         /* QR Code đặt ở góc */
         .qr-corner {
             position: absolute;
-            bottom: 25px;
+            top: 25px; /* Đổi thành top để chuyển lên đầu */
             right: 25px;
-            width: 65px;
-            height: 65px;
+            width: 60px; /* Thu nhỏ một chút */
+            height: 60px;
             background-color: white;
             padding: 3px;
             border-radius: 6px;
@@ -206,12 +206,12 @@
 
         .qr-label {
             position: absolute;
-            bottom: 8px;
-            right: 25px;
+            top: 90px; /* Chỉnh lại khoảng cách theo top */
+            right: 20px;
             font-size: 0.5rem;
             color: #718096;
             text-align: center;
-            width: 65px;
+            width: 70px;
             z-index: 20;
         }
 
@@ -257,6 +257,21 @@
     </style>
 </head>
 <body>
+
+    <!-- Modal Cảm Ơn (Mới thêm) -->
+    <div id="thank-you-modal" class="fixed inset-0 bg-black/70 flex justify-center items-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#fffaf0] p-6 md:p-8 rounded-lg shadow-2xl max-w-sm w-[90%] text-center border-2 border-[#d4af37] relative">
+            <button id="close-thank-you-btn" class="absolute top-2 right-4 text-gray-500 hover:text-red-500 text-3xl">&times;</button>
+            <i class="fas fa-heart text-red-500 text-4xl mb-4 mt-2"></i>
+            <h3 class="serif-font text-2xl font-bold dark-text mb-3">Trân trọng cảm ơn!</h3>
+            <p class="text-gray-700 text-sm md:text-base mb-4 font-sans leading-relaxed">
+                Sự hiện diện của <span class="italic serif-font text-gray-600">Ông/Bà</span> <span id="thank-you-name" class="name-font text-2xl md:text-3xl gold-text font-bold"></span> trong ngày lễ tốt nghiệp này là món quà vô giá và là niềm vinh hạnh lớn lao đối với tôi.
+            </p>
+            <p class="text-sm font-medium italic gold-text serif-font">
+                Hẹn gặp lại tại buổi lễ nhé!
+            </p>
+        </div>
+    </div>
 
     <!-- Modal Hỏi Tên (Mặc định ẩn) -->
     <div id="name-modal" class="fixed inset-0 bg-black/70 flex justify-center items-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -332,13 +347,13 @@
                 <div class="text-center w-full mt-2 z-10 relative">
                     <p class="text-xs text-gray-500 mb-2">Nhấn nút bên dưới để xác nhận tham dự</p>
                     
-                    <!-- Nút trỏ tới Google Form -->
-                    <a href="#" target="_blank" class="btn-action btn-gold px-6 py-2 text-base shadow-lg hover:shadow-xl transform transition hover:-translate-y-1">
+                    <!-- Nút xác nhận tham dự (Đã đổi thành thẻ button để mở popup) -->
+                    <button id="confirm-btn" class="btn-action btn-gold px-6 py-2 text-base shadow-lg hover:shadow-xl transform transition hover:-translate-y-1">
                         <i class="fas fa-check-circle"></i> Xác nhận tham dự
-                    </a>
+                    </button>
                 </div>
                 
-                <!-- QR Góc phải dưới -->
+                <!-- QR Góc phải trên (Vị trí đã được điều chỉnh bằng CSS) -->
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://docs.google.com/forms/..." alt="QR Code" class="qr-corner">
                 <span class="qr-label">Quét để<br>đăng ký</span>
             </div>
@@ -469,6 +484,27 @@
                 if (e.key === 'Enter') {
                     submitNameBtn.click();
                 }
+            });
+
+            // --- XỬ LÝ LỜI CẢM ƠN KHI XÁC NHẬN THAM DỰ ---
+            const confirmBtn = document.getElementById('confirm-btn');
+            const thankYouModal = document.getElementById('thank-you-modal');
+            const closeThankYouBtn = document.getElementById('close-thank-you-btn');
+            const thankYouName = document.getElementById('thank-you-name');
+
+            confirmBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Lấy tên hiện tại đang hiển thị trong localstorage (hoặc dùng tên mặc định)
+                const currentName = localStorage.getItem('grad_guest_name') || 'Khách quý';
+                thankYouName.textContent = currentName;
+                
+                // Mở modal cảm ơn
+                thankYouModal.classList.remove('opacity-0', 'pointer-events-none');
+            });
+
+            // Đóng modal cảm ơn
+            closeThankYouBtn.addEventListener('click', () => {
+                thankYouModal.classList.add('opacity-0', 'pointer-events-none');
             });
         });
     </script>
