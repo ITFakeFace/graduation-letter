@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp Mời Lễ Tốt Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Roboto:wght@300;400;500&family=Dancing+Script:wght@600;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ngăn cuộn trang */
+            background-color: #f4ece4; /* Màu nền nhã nhặn */
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Font chữ viết tay trang trọng cho Tên khách mời */
+        .name-font {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Container cho toàn bộ animation */
+        .envelope-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* Kích thước tối đa cho điện thoại và web */
+            height: 520px; /* Đã tăng chiều cao để mở rộng thư theo chiều dọc */
+            perspective: 1000px; /* Thêm phối cảnh cho hiệu ứng 3D */
+            z-index: 10;
+        }
+
+        /* --- CẤU TRÚC PHONG BÌ --- */
+        .envelope {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c; /* Màu xanh đen trang trọng */
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 20;
+            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+        }
+
+        /* Nắp phong bì (tam giác phía trên) */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #2d3748; /* Màu nhạt hơn chút để tạo khối */
+            clip-path: polygon(0 0, 50% 50%, 100% 0); /* Tạo hình tam giác */
+            transform-origin: top;
+            transition: transform 0.8s ease-in-out;
+            z-index: 22;
+        }
+
+        /* Mặt trước phong bì (phần dưới nắp) */
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c;
+            clip-path: polygon(0 100%, 0 0, 50% 50%, 100% 0, 100% 100%);
+            z-index: 21;
+        }
+
+        /* Dấu ấn sáp (Wax Seal) */
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #b91c1c 40%, #991b1b 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 23;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fbbf24; /* Màu vàng kim */
+            font-size: 2rem;
+            transition: transform 0.2s, opacity 0.5s;
+        }
+        
+        .wax-seal:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .wax-seal::after {
+            content: '';
+            position: absolute;
+            width: 65px;
+            height: 65px;
+            border: 2px dashed rgba(251, 191, 36, 0.5); /* Viền vàng */
+            border-radius: 50%;
+        }
+
+        /* --- NỘI DUNG THIỆP (Lá thư) --- */
+        .letter {
+            position: absolute;
+            top: 10px; /* Nằm gọn trong phong bì */
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background-color: #fffaf0; /* Màu giấy nhạt */
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 15; /* Ban đầu nằm dưới mặt trước phong bì */
+            transition: transform 1s ease-in-out, z-index 1s ease-in-out;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden; /* Tránh tràn nội dung lúc animation */
+            text-align: center;
+        }
+        
+        /* Họa tiết góc thiệp */
+        .corner-decor {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #d4af37; /* Màu vàng gold */
+            opacity: 0.5;
+        }
+        .top-left { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .top-right { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .bottom-right { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        /* --- ANIMATION CLASSES --- */
+        /* Khi phong bì mở ra */
+        .envelope-container.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 10; /* Đưa nắp ra sau lá thư */
+        }
+
+        /* Ẩn dấu ấn sáp */
+        .envelope-container.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Kéo lá thư lên trên và phóng to */
+        .envelope-container.open .letter {
+            transform: translateY(-90px) scale(1.1); /* Nhô lên và to ra một chút */
+            z-index: 25; /* Đưa lá thư lên trên phong bì */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            /* Nếu màn hình nhỏ, cần điều chỉnh transform để không bị lẹm */
+        }
+        
+        /* Ẩn hẳn phong bì để thư hiện rõ (tuỳ chọn, ở đây tôi làm mờ và trượt xuống) */
+        .envelope-container.open .envelope {
+            transform: translateY(180px) scale(0.9);
+            opacity: 0.2;
+        }
+
+        /* --- TRANG TRÍ NỘI DUNG THIỆP --- */
+        .grad-icon {
+            color: #d4af37; /* Gold */
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .gold-text {
+            color: #d4af37;
+        }
+        
+        .dark-text {
+            color: #2d3748;
+        }
+
+        /* QR Code đặt ở góc */
+        .qr-corner {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 65px;
+            height: 65px;
+            background-color: white;
+            padding: 3px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            z-index: 20;
+        }
+
+        .qr-label {
+            position: absolute;
+            bottom: 8px;
+            right: 25px;
+            font-size: 0.5rem;
+            color: #718096;
+            text-align: center;
+            width: 65px;
+            z-index: 20;
+        }
+
+        .btn-action {
+            background-color: #1a202c;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-action:hover {
+            background-color: #2d3748;
+        }
+        
+        .btn-gold {
+            background-color: #d4af37;
+            color: #fff;
+        }
+        .btn-gold:hover {
+            background-color: #b8962e;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .envelope-container {
+                width: 90%;
+                height: 550px; /* Thư dài hơn trên mobile */
+            }
+            .envelope-container.open .letter {
+                transform: translateY(-60px) scale(1.05);
+            }
+            .envelope-container.open .envelope {
+                transform: translateY(220px) scale(0.9);
+                opacity: 0; /* Ẩn hẳn phong bì trên mobile để tiết kiệm chỗ */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Modal Hỏi Tên (Mặc định ẩn) -->
+    <div id="name-modal" class="fixed inset-0 bg-black/70 flex justify-center items-center z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#fffaf0] p-6 md:p-8 rounded-lg shadow-2xl max-w-sm w-[90%] text-center border-2 border-[#d4af37] relative">
+            <h3 class="serif-font text-2xl font-bold dark-text mb-2">Xin chào!</h3>
+            <p class="text-gray-600 text-sm mb-5 font-sans">Để thiệp mời thêm phần trang trọng, xin vui lòng cho biết tên của bạn nhé.</p>
+            
+            <input type="text" id="guest-input-field" placeholder="Nhập tên của bạn..." 
+                class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] mb-5 text-center font-sans text-lg transition-colors">
+            
+            <button id="submit-name-btn" class="btn-action btn-gold px-6 py-2 shadow-md hover:shadow-lg w-full justify-center text-lg font-medium transition-transform transform active:scale-95">
+                <i class="fas fa-signature mr-2"></i> Xác nhận
+            </button>
+        </div>
+    </div>
+
+    <!-- Chỉ dẫn ban đầu -->
+    <div id="instruction" class="absolute top-10 text-center w-full z-0 text-gray-500 italic">
+        Nhấn vào dấu ấn sáp để mở thiệp
+    </div>
+
+    <!-- Container cho thiệp và phong bì -->
+    <div class="envelope-container" id="invite-container">
+        
+        <!-- THIỆP BÊN TRONG (Lá Thư) -->
+        <div class="letter">
+            <!-- Họa tiết góc -->
+            <div class="corner-decor top-left"></div>
+            <div class="corner-decor top-right"></div>
+            <div class="corner-decor bottom-left"></div>
+            <div class="corner-decor bottom-right"></div>
+
+            <!-- Nội dung chính -->
+            <div class="flex flex-col items-center h-full w-full justify-between pb-2">
+                
+                <!-- Tiêu đề & Icon -->
+                <div class="text-center w-full mt-2">
+                    <i class="fas fa-graduation-cap grad-icon mb-1"></i>
+                    <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-widest dark-text mb-1 serif-font">Thư Mời</h1>
+                    <h2 class="text-lg md:text-xl italic gold-text serif-font">Dự Lễ Tốt Nghiệp</h2>
+                </div>
+
+                <!-- Mục Kính mời khách -->
+                <div class="text-center w-full mt-2">
+                    <p class="text-sm md:text-base text-gray-600 italic">Trân trọng kính mời:</p>
+                    <div class="flex items-baseline justify-center gap-2 mt-1 mb-1">
+                        <span class="text-sm md:text-base text-gray-600 italic serif-font">Ông/Bà</span>
+                        <span id="guest-name" class="name-font text-3xl md:text-4xl gold-text font-bold tracking-wide">Khách quý</span>
+                    </div>
+                    <p class="text-sm md:text-base text-gray-700">
+                        Đến chung vui cùng tôi trong ngày Lễ Nhận Bằng.
+                    </p>
+                </div>
+
+                <!-- Chi tiết sự kiện -->
+                <div class="text-center w-full flex-grow flex flex-col justify-center space-y-3">
+                    <div class="py-2 border-y border-gray-200 mx-4">
+                        <!-- Nút liên kết tới Google Maps / Drive -->
+                        <a href="https://maps.google.com/?q=Nhà hát Hòa Bình, 240 Đường 3 tháng 2, Phường Hòa Hưng, Quận 10, TP.HCM" target="_blank" class="block mb-2 hover:bg-gray-50 p-2 rounded transition-colors group cursor-pointer" title="Nhấn để mở bản đồ (cập nhật sau)">
+                            <p class="font-bold dark-text serif-font text-lg md:text-xl group-hover:text-[#d4af37] transition-colors"><i class="fas fa-map-marker-alt text-[#d4af37] mr-1"></i> Nhà hát Hòa Bình</p>
+                            <p class="text-xs md:text-sm text-gray-600">240 Đường 3 tháng 2, P. Hòa Hưng, TP.HCM</p>
+                        </a>
+                        
+                        <p class="font-bold dark-text serif-font text-lg md:text-xl"><i class="far fa-clock text-[#d4af37] mr-1"></i> 15:00 (3h00 chiều)</p>
+                    </div>
+
+                    <p class="text-sm md:text-base font-medium italic gold-text px-4 serif-font text-lg">
+                        "Sự có mặt của bạn là niềm vinh hạnh của tôi"
+                    </p>
+                </div>
+
+                <!-- Nút đăng ký (Giữa) & QR Code (Góc) -->
+                <div class="text-center w-full mt-2 z-10 relative">
+                    <p class="text-xs text-gray-500 mb-2">Nhấn nút bên dưới để xác nhận tham dự</p>
+                    
+                    <!-- Nút trỏ tới Google Form -->
+                    <a href="#" target="_blank" class="btn-action btn-gold px-6 py-2 text-base shadow-lg hover:shadow-xl transform transition hover:-translate-y-1">
+                        <i class="fas fa-check-circle"></i> Xác nhận tham dự
+                    </a>
+                </div>
+                
+                <!-- QR Góc phải dưới -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://docs.google.com/forms/..." alt="QR Code" class="qr-corner">
+                <span class="qr-label">Quét để<br>đăng ký</span>
+            </div>
+        </div>
+
+        <!-- PHONG BÌ -->
+        <div class="envelope">
+            <div class="envelope-front"></div>
+        </div>
+        
+        <!-- Nắp phong bì -->
+        <div class="envelope-flap"></div>
+        
+        <!-- Dấu ấn sáp -->
+        <div class="wax-seal" id="open-btn">
+            <i class="fas fa-stamp"></i>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('invite-container');
+            const openBtn = document.getElementById('open-btn');
+            const instruction = document.getElementById('instruction');
+
+            // Xử lý sự kiện khi nhấn vào dấu sáp
+            openBtn.addEventListener('click', () => {
+                // Thêm class 'open' để kích hoạt CSS animations
+                container.classList.add('open');
+                
+                // Ẩn dòng chữ chỉ dẫn
+                instruction.style.opacity = '0';
+                instruction.style.transition = 'opacity 0.5s';
+                
+                // Vô hiệu hóa nút để tránh nhấn nhiều lần
+                openBtn.style.pointerEvents = 'none';
+                
+                // Tùy chọn: Thêm âm thanh mở giấy nếu muốn
+                // const audio = new Audio('path/to/sound.mp3');
+                // audio.play();
+            });
+
+            // Gợi ý cho người dùng biết có thể nhấn vào địa chỉ
+            const addressLink = document.querySelector('a[href^="https://maps"]');
+            if(addressLink) {
+                addressLink.addEventListener('click', (e) => {
+                    // Tạm thời bạn có thể bỏ comment dòng preventDefault dưới đây 
+                    // nếu chưa có link thật để tránh nhảy trang khi test
+                    // e.preventDefault();
+                    console.log('Mở bản đồ / Drive');
+                });
+            }
+
+            // --- XỬ LÝ LẤY TÊN KHÁCH MỜI TỪ URL VÀ LOCALSTORAGE ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const guestNameEl = document.getElementById('guest-name');
+            const nameModal = document.getElementById('name-modal');
+            const nameInput = document.getElementById('guest-input-field');
+            const submitNameBtn = document.getElementById('submit-name-btn');
+            
+            let urlName = urlParams.get('name');
+            const urlNameB64 = urlParams.get('name_b64');
+            let finalName = "";
+
+            // 1. Kiểm tra ưu tiên từ URL trước
+            if (urlNameB64) {
+                try {
+                    finalName = decodeURIComponent(escape(atob(urlNameB64)));
+                } catch (e) {
+                    console.error('Lỗi giải mã tên khách mời:', e);
+                }
+            } else if (urlName && urlName.trim() !== '') {
+                finalName = urlName.trim();
+            }
+
+            // Hàm cập nhật tên hiển thị
+            const updateNameDisplay = (name) => {
+                guestNameEl.textContent = name;
+            }
+
+            // Hàm hiển thị Modal hỏi tên
+            const showNameModal = () => {
+                nameModal.classList.remove('opacity-0', 'pointer-events-none');
+                setTimeout(() => nameInput.focus(), 100);
+            };
+
+            // Hàm ẩn Modal hỏi tên
+            const hideNameModal = () => {
+                nameModal.classList.add('opacity-0', 'pointer-events-none');
+            };
+
+            // 2. Quyết định hiển thị tên
+            if (finalName) {
+                // Nếu có ở URL -> Cập nhật hiển thị & lưu vào bộ nhớ cục bộ
+                updateNameDisplay(finalName);
+                localStorage.setItem('grad_guest_name', finalName);
+            } else {
+                // Nếu không có ở URL -> Kiểm tra LocalStorage
+                const storedName = localStorage.getItem('grad_guest_name');
+                if (storedName && storedName.trim() !== '') {
+                    // Đã từng nhập trước đó
+                    updateNameDisplay(storedName);
+                } else {
+                    // Chưa từng nhập -> Hiển thị Modal hỏi tên
+                    showNameModal();
+                }
+            }
+
+            // 3. Xử lý khi nhấn nút "Xác nhận" trong Modal
+            submitNameBtn.addEventListener('click', () => {
+                const enteredName = nameInput.value.trim();
+                if (enteredName !== '') {
+                    localStorage.setItem('grad_guest_name', enteredName);
+                    updateNameDisplay(enteredName);
+                    hideNameModal();
+                } else {
+                    // Cảnh báo nhẹ (chớp viền đỏ) nếu để trống
+                    nameInput.classList.add('border-red-500', 'bg-red-50');
+                    setTimeout(() => {
+                        nameInput.classList.remove('border-red-500', 'bg-red-50');
+                    }, 500);
+                }
+            });
+
+            // Cho phép nhấn Enter để xác nhận tên
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    submitNameBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
